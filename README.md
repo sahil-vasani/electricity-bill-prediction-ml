@@ -14,12 +14,12 @@
 </p>
 
 ## 📋 Table of Contents
-- [📖 Problem Statement](#-problem-statement)
-- [📉 Dataset Overview](#-dataset-overview)
-- [🤖 Model Performance Matrix](#-model-performance-matrix)
-- [📸 Application Interface](#-application-interface)
-- [⚙️ In-Depth Execution Guide (How to Run)](#️-in-depth-execution-guide-how-to-run)
-- [🔮 Future Improvements](#-future-improvements)
+- [📖 Problem Statement](#problem-statement)
+- [📉 Dataset Overview](#dataset-overview)
+- [🤖 Model Performance Matrix](#model-performance-matrix)
+- [📸 Application Interface](#application-interface)
+- [⚙️ In-Depth Execution Guide (How to Run)](#in-depth-execution-guide-how-to-run)
+- [🔮 Future Improvements](#future-improvements)
 
 ---
 
@@ -56,9 +56,9 @@ Data modeling is executed sequentially through individual algorithm tuning using
 
 | Model Architecture | Tuned Parameters | Validation R² | Validation RMSE | Validation MAE |
 | :--- | :--- | :--- | :--- | :--- |
-| **Ridge Regression** | `alpha`: 12.915 | `0.9556` | ₹109 | ₹72 | 
-| **RandomForest** | `n_trees`: 200, `min_leaf`: 10, `max_depth`: 5 | `0.9566` | ₹107 | ₹66 |
-| **XGBoost** | `lr`: 0.03, `depth`: 3, `trees`: 150, `subs`: 0.8... | `0.9551` | ₹109 | ₹69 |
+| **Ridge Regression** | `alpha`: 12.915 | `0.9556` | 109 | 72 | 
+| **RandomForest** | `n_trees`: 200, `min_leaf`: 10, `max_depth`: 5 | `0.9566` | 107 | 66 |
+| **XGBoost** | `lr`: 0.03, `depth`: 3, `trees`: 150, `subs`: 0.8... | `0.9551` | 109 | 69 |
 
 ### 🏆 Final Model: Stacking Ensemble
 A multi-layered stacking model combining the outputs of the linear Ridge constraints and the Tree-based predictions. Evaluation verifies zero overfitting across evaluation boundaries.
@@ -66,8 +66,8 @@ A multi-layered stacking model combining the outputs of the linear Ridge constra
 | Metric | Validation Set (`405` rows) | Test Set (`406` rows) |
 | :--- | :--- | :--- |
 | **Ensemble R² Score** | **`0.9563`** | **`0.9515`** |
-| **Ensemble RMSE** | **`₹108`** | **`₹111`** |
-| **Ensemble MAE** | **`₹68`** | **`₹71`** |
+| **Ensemble RMSE** | **`108`** | **`111`** |
+| **Ensemble MAE** | **`68`** | **`71`** |
 
 *(Model securely serialized via Joblib to `models/electricity_model.pkl`)*
 
