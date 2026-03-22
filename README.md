@@ -15,12 +15,9 @@
 
 ## 📋 Table of Contents
 - [📖 Problem Statement](#-problem-statement)
-- [💡 Solution Approach](#-solution-approach)
-- [🚀 Why This Project Stands Out](#-why-this-project-stands-out)
-- [🏗️ System Architecture](#️-system-architecture)
-- [✨ Core Features](#-core-features)
-- [📉 Dataset & Statistical Insights](#-dataset--statistical-insights)
-- [📊 Model Performance](#-model-performance)
+- [📉 Dataset Overview](#-dataset-overview)
+- [🤖 Model Performance Matrix](#-model-performance-matrix)
+- [📸 Application Interface](#-application-interface)
 - [⚙️ In-Depth Execution Guide (How to Run)](#️-in-depth-execution-guide-how-to-run)
 - [🔮 Future Improvements](#-future-improvements)
 
@@ -30,59 +27,59 @@
 
 Predicting household electricity bills using only machine learning often leads to unrealistic results. Standard ML models might predict an energy bill that violates the strict constraints of actual appliance physics or ignores the non-linear, tier-based slab pricing structures used by state utility companies. This causes standard tabular ML models to struggle when exposed to extreme values, leading to poor generalization in real-world engineering scenarios. 
 
-## 💡 Solution Approach
+This pipeline models the **ratio** between theoretical physics-based consumption and actual billed amounts, bounding the data strictly in mathematical reality before predicting the variation.
 
-This project bridges the gap between pure data science and real-world engineering by implementing a hybrid **Physics-Informed Machine Learning** approach:
+---
 
-1. **Physics-Based Energy Calculation:** Computes the baseline Kilowatt-hours (kWh) using actual appliance wattage, usage hours, and energy limits. 
-2. **State-Wise Slab Billing Logic:** Applies real Indian electricity board pricing rules (covering 10 major states) to compute the exact cost based on physical energy consumption.
-3. **Ratio-Based ML Correction:** Instead of predicting the final bill directly or predicting the absolute residual, the model predicts the **Ratio** (`Actual Bill / Physics Bill`). This dynamically corrects for behavioral inefficiencies.
+## 📉 Dataset Overview
 
-## 🚀 Why This Project Stands Out
+The dataset consists of **2,703 precisely engineered records** covering 30 interactive features. It simulates realistic household energy behaviors constrained by actual appliance physics. The model successfully maps the variance between strict physical electricity calculations and the actual billed amounts.
 
-Unlike generic ML projects that simply fit an algorithm to a CSV, this project solves a complex, real-world engineering problem:
+### Target Distribution (`Actual Target / Physics Baseline`)
 
-* **Domain Knowledge Integration:** Incorporates complex tier-based slab logic instead of purely relying on the model to "guess" the mathematical relationship.
-* **Physics over Blackbox:** Ensures predictions are grounded in the laws of physics (Watt-hours). Safety constraints prevent the ML model from generating physically impossible electricity bills.
-* **Ratio-Based Target over Residuals:** Modeling the ratio creates a scale-invariant learning objective, completely eliminating the drastic overprediction bias commonly found in standard residual-based learning.
+| Metric | Target Value |
+| :--- | :--- |
+| **Mean Ratio** | `1.275` |
+| **Standard Deviation (Std)** | `0.060` |
+| **Minimum Ratio** | `0.850` |
+| **Maximum Ratio** | `1.300` |
 
-## 🏗️ System Architecture
+---
 
-1. **User Input:** User provides appliance usage (Fan, TV, Refrigerator, Computer, AC, Motor), State, and Month.
-2. **Feature Engineering:** Pipeline generates interaction features mapping months to seasons (Winter, Summer, Monsoon) and checks for high usage logic.
-3. **Physics Engine:** Calculates theoretical kWh and base cost using state-wise slab logic.
-4. **Machine Learning Model:** Stacking Ensemble (Ridge + Random Forest + XGBoost) predicts the expected usage inefficiency (Ratio).
-5. **Final Computation:** `Final Predicted Bill = Physics Base Cost × Predicted Ratio`.
-6. **Frontend:** Serves predictions and energy-saving tips via a Streamlit application.
+## 🤖 Model Performance Matrix
 
-## ✨ Core Features
+Data modeling is executed sequentially through individual algorithm tuning using `RandomizedSearchCV`, culminating in an optimized stacking ensemble model.
 
-* **Appliance-Level Modeling:** Supports detailed daily usage inputs for Fans, TVs, Fridges, Computers, ACs, and Water Motors.
-* **Multi-State Slab Support:** Dynamic pricing for 10 Indian States: Gujarat, Maharashtra, Delhi, Karnataka, Tamil Nadu, Rajasthan, Uttar Pradesh, West Bengal, Madhya Pradesh, and Telangana.
-* **Actionable Energy Tips:** Suggests specific cost-saving actions (e.g., reducing AC time, considering solar power for bills > ₹5,000).
-* **Stacking Ensemble Architecture:** Hyper-tuned hybrid model combining linear robustness and tree-based non-linearity using `RandomizedSearchCV`.
+* **Data Split:** Train: `1,892`, Validation: `405`, Test: `406`
 
-## 📉 Dataset & Statistical Insights
+### Algorithm Hyper-Tuning & Validation Set Matrices
 
-The project utilizes a rich, custom dataset simulating realistic household behaviors overlapping with physics laws:
+| Model Architecture | Tuned Parameters | Validation R² | Validation RMSE | Validation MAE |
+| :--- | :--- | :--- | :--- | :--- |
+| **Ridge Regression** | `alpha`: 12.915 | `0.9556` | ₹109 | ₹72 | 
+| **RandomForest** | `n_trees`: 200, `min_leaf`: 10, `max_depth`: 5 | `0.9566` | ₹107 | ₹66 |
+| **XGBoost** | `lr`: 0.03, `depth`: 3, `trees`: 150, `subs`: 0.8... | `0.9551` | ₹109 | ₹69 |
 
-* **Dataset Size:** `45,345 records` × `12 features`
-* **Average Actual Bill:** `₹2,948` per household simulation.
-* **Target Ratio Variance:** The model targets a multiplier ratio ranging up to `1.30` (representing up to ~30% physical inefficiency due to old appliances, extreme heat loss, etc.).
-* **Data Consistency:** Quality checks during the pipeline ensure the ratio gap between physics and actuals stays bounded to realistic margins (Mean Ratio standard deviation: ~`0.06`).
+### 🏆 Final Model: Stacking Ensemble
+A multi-layered stacking model combining the outputs of the linear Ridge constraints and the Tree-based predictions. Evaluation verifies zero overfitting across evaluation boundaries.
 
-## 📊 Model Performance
+| Metric | Validation Set (`405` rows) | Test Set (`406` rows) |
+| :--- | :--- | :--- |
+| **Ensemble R² Score** | **`0.9563`** | **`0.9515`** |
+| **Ensemble RMSE** | **`₹108`** | **`₹111`** |
+| **Ensemble MAE** | **`₹68`** | **`₹71`** |
 
-Evaluated rigorously using an industry-standard Train / Validation / Test split over the 45k+ samples. The stacking ensemble provides massive resistance to overfitting.
+*(Model securely serialized via Joblib to `models/electricity_model.pkl`)*
 
-| Metric | Validation Set | Test Set |
-|--------|----------------|----------|
-| **R² Score** | `0.9563` (95.6%) | `0.9515` (95.1%) |
-| **RMSE** | ₹108 | ₹111 |
-| **MAE** | ₹68 | ₹71 |
+---
 
-### 🤔 Why Ratio Model > Residual Model?
-When predicting residuals (`Actual - Physics`), standard models struggle with high-variance spikes. By predicting the **ratio** (`Actual / Physics`), the model scales dynamically. If the model predicts a `1.15` ratio, the household is essentially 15% less efficient than the baseline calculation—keeping predictions strictly bounded.
+## 📸 Application Interface
+
+| Home View (Settings & Inputs) | Prediction Output (Estimates & Tips) |
+| :---: | :---: |
+| ![Home](UI/UI_Home.png) | ![Prediction](UI/UI_prediction.png) |
+
+---
 
 ## ⚙️ In-Depth Execution Guide (How to Run)
 
@@ -114,17 +111,17 @@ The repository provides modular scripts to reproduce the ML pipeline from scratc
 
 ### 2. Running the ML Pipeline (Data Processing & Training)
 
-If you want to re-train the model or regenerate the `processed.csv`, execute the main pipeline orchestrator in your terminal:
+To run the orchestrator processing pipeline log output exactly as framed above:
 
 ```bash
 python main.py
 ```
 **What happens under the hood:**
 1. Loads raw dataset from `data/electricity_bill_dataset.csv`.
-2. Cleans constraints and encodes features (`src/preprocess.py`).
+2. Formats appliance inputs and encodes regional features (`src/preprocess.py`).
 3. Computes the `physics_bill` using individual state slab rates (`src/slab_rates.py` & `src/feature_engineering.py`).
-4. Performs sanity checks and exports `data/processed.csv`.
-5. Trains the Stacking Model (Ridge, RF, XGBoost) and performs cross-validation (`src/train_model.py`).
+4. Generates modeling exports to `data/processed.csv`.
+5. Iteratively trains Ridge, RF, XGBoost, and Stacks the final model while logging cross-validation (`src/train_model.py`).
 6. Saves `models/electricity_model.pkl`.
 
 ### 3. Launching the Web Application
