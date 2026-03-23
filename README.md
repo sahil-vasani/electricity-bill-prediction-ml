@@ -7,6 +7,8 @@
 <p align="center">
   <br>
   <img src="https://img.shields.io/badge/Python-3776AB.svg?style=flat&logo=Python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/NumPy-013243.svg?style=flat&logo=NumPy&logoColor=white" alt="NumPy" />
+  <img src="https://img.shields.io/badge/pandas-150458.svg?style=flat&logo=pandas&logoColor=white" alt="pandas" />
   <img src="https://img.shields.io/badge/scikit--learn-F7931E.svg?style=flat&logo=scikit-learn&logoColor=white" alt="scikit-learn" />
   <img src="https://img.shields.io/badge/Streamlit-FF4B4B.svg?style=flat&logo=Streamlit&logoColor=white" alt="Streamlit" />
   <img src="https://img.shields.io/badge/XGBoost-189FDD.svg?style=flat&logo=XGBoost&logoColor=white" alt="XGBoost" />
@@ -15,8 +17,10 @@
 
 ## 📋 Table of Contents
 - [📖 Problem Statement](#problem-statement)
+- [🛠️ Tech Stack & Dependencies](#tech-stack--dependencies)
 - [📉 Dataset Overview](#dataset-overview)
 - [🤖 Model Performance Matrix](#model-performance-matrix)
+- [📂 Project Structure](#project-structure)
 - [📸 Application Interface](#application-interface)
 - [⚙️ In-Depth Execution Guide (How to Run)](#in-depth-execution-guide-how-to-run)
 - [🔮 Future Improvements](#future-improvements)
@@ -28,6 +32,16 @@
 Predicting household electricity bills using only machine learning often leads to unrealistic results. Standard ML models might predict an energy bill that violates the strict constraints of actual appliance physics or ignores the non-linear, tier-based slab pricing structures used by state utility companies. This causes standard tabular ML models to struggle when exposed to extreme values, leading to poor generalization in real-world engineering scenarios. 
 
 This pipeline models the **ratio** between theoretical physics-based consumption and actual billed amounts, bounding the data strictly in mathematical reality before predicting the variation.
+
+---
+
+## 🛠️ Tech Stack & Dependencies
+
+The project leverages modern Python data science ecosystem libraries:
+- **Core ML:** `scikit-learn` (1.4.2), `xgboost` (2.0.3)
+- **Data Manipulation:** `numpy` (1.26.4), `pandas` (2.2.2)
+- **Web Frontend:** `streamlit` (1.35.0)
+- **Model Serialization:** `joblib` (1.4.2)
 
 ---
 
@@ -73,6 +87,34 @@ A multi-layered stacking model combining the outputs of the linear Ridge constra
 
 ---
 
+## 📂 Project Structure
+
+```text
+├── UI/
+│   ├── UI_Home.png
+│   └── UI_prediction.png
+├── data/
+│   ├── electricity_bill_dataset.csv     # Raw generated dataset
+│   └── processed.csv                    # Feature-engineered dataset
+├── models/
+│   └── electricity_model.pkl            # Trained Joblib ensemble model
+├── notebooks/
+│   └── EDA.ipynb                        # Exploratory Data Analysis
+├── src/
+│   ├── feature_engineering.py           # Feature creation and engineering
+│   ├── load_data.py                     # Data loading utilities
+│   ├── predict.py                       # Prediction logic and formatting
+│   ├── preprocess.py                    # Data cleaning and encoding
+│   ├── slab_rates.py                    # 10 State-wise electricity slab rates
+│   └── train_model.py                   # Model training and hyperparameter tuning
+├── app.py                               # Streamlit Web Application
+├── main.py                              # ML Pipeline orchestrator
+├── requirements.txt                     # Python dependencies
+└── README.md                            # Project documentation
+```
+
+---
+
 ## 📸 Application Interface
 
 | Home View (Settings & Inputs) | Prediction Output (Estimates & Tips) |
@@ -109,7 +151,14 @@ The repository provides modular scripts to reproduce the ML pipeline from scratc
   pip install -r requirements.txt
   ```
 
-### 2. Running the ML Pipeline (Data Processing & Training)
+### 2. Exploratory Data Analysis (EDA)
+
+You can explore the statistical analysis, data distributions, and feature correlations in the provided Jupyter Notebook:
+```bash
+jupyter notebook notebooks/EDA.ipynb
+```
+
+### 3. Running the ML Pipeline (Data Processing & Training)
 
 To run the orchestrator processing pipeline log output exactly as framed above:
 
@@ -124,7 +173,7 @@ python main.py
 5. Iteratively trains Ridge, RF, XGBoost, and Stacks the final model while logging cross-validation (`src/train_model.py`).
 6. Saves `models/electricity_model.pkl`.
 
-### 3. Launching the Web Application
+### 4. Launching the Web Application
 
 To use the interactive dashboard for predictions, run the following command to start the Streamlit server:
 
